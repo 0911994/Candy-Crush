@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -69,11 +70,11 @@ class Panel extends JPanel implements ActionListener{
             {
                 candyGrid[i][j] = new Candy(random.nextInt(numberOfCandyTypes));
             }
-        HandleCollisions();
+        normalize();
     }
-    private void HandleCollisions()
+    private void normalize()
     {
-        boolean candiesReordered;
+                boolean candiesReordered;
         do
         {
             candiesReordered = false;
@@ -109,14 +110,97 @@ class Panel extends JPanel implements ActionListener{
          for(int i = 0; i < gridSize; i++)
             for(int j = 0; j < gridSize; j++)
                 candyButtonGrid[i][j].setText("" + candyGrid[i][j].getCandyType());
-    }
-    private void CheckMatches()
-    {
-        HandleCollisions();
 
+    }
+    private boolean HandleCollisions(int x, int y)
+    {
+        ArrayList<Integer> sameInRow = new ArrayList<>();
+        ArrayList<Integer> sameInColumn = new ArrayList<>();
+            
+        sameInColumn.clear();
+        sameInRow.clear();
+            for(int j = y; j < gridSize - 1; j++)
+                if(candyGrid[x][j].getCandyType() == candyGrid[x][j+1].getCandyType())
+                    sameInColumn.add(j+1);
+                else
+                    break;
+            for(int j = y; j > 0; j--)
+                if(candyGrid[x][j].getCandyType() == candyGrid[x][j-1].getCandyType())
+                    sameInColumn.add(j-1);
+                else
+                    break;
+            for(int j = x; j > 0; j--)
+                if(candyGrid[j][y].getCandyType() == candyGrid[j-1][y].getCandyType())
+                    sameInRow.add(j-1);
+                else
+                    break;
+            for(int j = x; j < gridSize - 1; j++)
+                if(candyGrid[j][y].getCandyType() == candyGrid[j+1][y].getCandyType())
+                    sameInRow.add(j+1);
+                else
+                    break;
+            if(sameInRow.size() < 2 && sameInColumn.size() < 2)
+            {
+                return false;
+            }
+            else
+            {
+                if(sameInColumn.size() >= 2)
+                {
+                    int maxColumn, minColumn;
+                    maxColumn = minColumn = sameInColumn.get(0);
+                    for(int i = 1; i < sameInColumn.size(); i++)
+                    {
+                        if(maxColumn < sameInColumn.get(i))
+                            maxColumn = sameInColumn.get(i);
+                        if(minColumn > sameInColumn.get(i))
+                            minColumn = sameInColumn.get(i);
+                    }
+                    for (int i = minColumn; i <= maxColumn; i++) 
+                    {
+                        candyGrid[x][i] = new Candy(random.nextInt(numberOfCandyTypes));
+                        points++;
+                    }
+                }
+                if(sameInRow.size() >= 2)
+                {
+                    int maxColumn, minColumn;
+                    maxColumn = minColumn = sameInRow.get(0);
+                    for(int i = 1; i < sameInRow.size(); i++)
+                    {
+                        if(maxColumn < sameInRow.get(i))
+                            maxColumn = sameInRow.get(i);
+                        if(minColumn > sameInRow.get(i))
+                            minColumn = sameInRow.get(i);
+                    }
+                        for(int i = sameInRow.get(0); i > 0; i--)
+                        {    
+                            candyGrid[i][y] = new Candy(random.nextInt(numberOfCandyTypes));
+                            points++;
+                        }   
+                }
+            }
+            return true;
+    }
+    
+    private void Swap(int x, int y)
+    {
+        Candy tempCandy = candyGrid[x][y];
+        candyGrid[x][y] = candyGrid[inititor[0]][inititor[1]];
+        candyGrid[inititor[0]][inititor[1]] = tempCandy;
+    }
+    private void CheckMatches(int x, int y)
+    {
+        Swap(x, y);
+        boolean first = HandleCollisions(x, y);
+        boolean second = HandleCollisions(inititor[0], inititor[1]);
+        if(first || second)
+            normalize();
+        else
+            Swap(x, y);
         for(int i = 0; i < gridSize; i++)
-                for(int j = 0; j < gridSize; j++)
-                    candyButtonGrid[i][j].setEnabled(true);
+            for(int j = 0; j < gridSize; j++)
+                candyButtonGrid[i][j].setEnabled(true);
         fistEnter = true;
         System.out.println(points);
     }
@@ -145,11 +229,7 @@ class Panel extends JPanel implements ActionListener{
         }
         else
         {
-            Candy tempCandy;
-            tempCandy = candyGrid[xCoordinate][yCoordinate];
-            candyGrid[xCoordinate][yCoordinate] =candyGrid[inititor[0]][inititor[1]]; 
-            candyGrid[inititor[0]][inititor[1]] = tempCandy;
-            CheckMatches();
+            CheckMatches(xCoordinate, yCoordinate);
         }
     }
 }
