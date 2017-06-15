@@ -2,24 +2,31 @@ package candycrush;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 class Panel extends JPanel implements ActionListener{
-    private static final int panelHeight = Frame.getFrameHeight()-25;
+    private static final int panelHeight = Frame.getFrameHeight()-45;
     private static final int panelWidth = Frame.getFrameWidth();
     private final int gridSize = 6;
-    private final int numberOfCandyTypes = 4;
+    public static final int numberOfCandyTypes = 4;
+    
     private Candy[][] candyGrid;
     private JButton[][] candyButtonGrid;
+    
     private Random random = new Random();
     private boolean fistEnter = true;
     private int points;
     
+    private boolean imagesLoaded;
+    private ImageIcon[] icons;
+
     public static int getPanelHeight() {
         return panelHeight;
     }
@@ -35,11 +42,25 @@ class Panel extends JPanel implements ActionListener{
         setBackground(Color.WHITE);
         setFocusable(true);
         setVisible(true);
+        
+        imagesLoaded = Candy.loadImages();
+        icons = new ImageIcon[numberOfCandyTypes];
         initComponents();
+        startGane();
+    }
+    public void startGane()
+    {
         generateCandies();
     }
     private void initComponents()
     {
+        if(imagesLoaded)
+            for(int i = 0; i < numberOfCandyTypes; i++) 
+            {
+                Image newimg = Candy.candyImages[i].getScaledInstance(panelWidth / (gridSize),
+                        panelHeight / (gridSize),  java.awt.Image.SCALE_SMOOTH ) ;
+                icons[i] = new ImageIcon( newimg );
+            }
         points = 0;
         candyGrid = new Candy[gridSize][gridSize];
         candyButtonGrid = new JButton[gridSize][gridSize];
@@ -108,9 +129,12 @@ class Panel extends JPanel implements ActionListener{
         }
         while (candiesReordered);
          for(int i = 0; i < gridSize; i++)
-            for(int j = 0; j < gridSize; j++)
+            for(int j = 0; j < gridSize; j++){
+             if(imagesLoaded)
+                 candyButtonGrid[i][j].setIcon(icons[candyGrid[i][j].getCandyType()]);
+             else
                 candyButtonGrid[i][j].setText("" + candyGrid[i][j].getCandyType());
-
+            }
     }
     private boolean HandleCollisions(int x, int y)
     {
@@ -204,7 +228,7 @@ class Panel extends JPanel implements ActionListener{
         fistEnter = true;
         System.out.println(points);
     }
-    int[] inititor = new int[2];
+    private int[] inititor = new int[2];
     @Override
     public void actionPerformed(ActionEvent e) {
         String[] indeses = ((JButton) e.getSource()).getName().split("-");
