@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 class Panel extends JPanel implements ActionListener{
@@ -21,16 +22,16 @@ class Panel extends JPanel implements ActionListener{
     private JButton[][] candyButtonGrid;
     
     private Random random = new Random();
-    private boolean fistEnter = true;
-    private int points;
+    private boolean fistEnter = true; //kad se pocne igra, prvi prikaz
+    private int points; 
     
     private boolean imagesLoaded;
-    private ImageIcon[] icons;
+    private ImageIcon[] icons; //da bi se crtalo na dugmadima mora imati ovaj tip
 
     public static int getPanelHeight() {
         return panelHeight;
     }
-
+    
     public static int getPanelWidth() {
         return panelWidth;
     }
@@ -44,13 +45,35 @@ class Panel extends JPanel implements ActionListener{
         setVisible(true);
         
         imagesLoaded = Candy.loadImages();
-        icons = new ImageIcon[numberOfCandyTypes];
-        initComponents();
-        startGane();
+        icons = new ImageIcon[numberOfCandyTypes]; //ikonice su niz dugmadi
+        initComponents(); //ucitaj komponente
+        startGame();
     }
-    public void startGane()
+    public void startGame()
     {
+        points = 0;
         generateCandies();
+    }
+    
+    private void gameOver()
+    {
+        for(int i = 0; i < gridSize; i++)
+            for(int j = 0; j < gridSize; j++)
+            {
+                candyButtonGrid[i][j].setVisible(false);
+            }
+         String odgovor;
+        do {
+            odgovor = JOptionPane.showInputDialog(this, "Congratulation! You won.\nEnter your name: ");
+            if(odgovor != null)
+                if(!odgovor.isEmpty())
+                    new HighScore(odgovor, points, this);
+                else
+                    JOptionPane.showMessageDialog(this, "Molim vas unesite ime");
+            else
+                break;
+        } while (odgovor.isEmpty());
+        
     }
     private void initComponents()
     {
@@ -59,10 +82,10 @@ class Panel extends JPanel implements ActionListener{
             {
                 Image newimg = Candy.candyImages[i].getScaledInstance(panelWidth / (gridSize),
                         panelHeight / (gridSize),  java.awt.Image.SCALE_SMOOTH ) ;
-                icons[i] = new ImageIcon( newimg );
+                icons[i] = new ImageIcon( newimg ); //ikonica postaje nova smanjenja slika
             }
         points = 0;
-        candyGrid = new Candy[gridSize][gridSize];
+        candyGrid = new Candy[gridSize][gridSize]; //pravi matrice
         candyButtonGrid = new JButton[gridSize][gridSize];
         for(int i = 0; i < gridSize; i++)
         {
@@ -72,7 +95,7 @@ class Panel extends JPanel implements ActionListener{
                 candyButtonGrid[i][j].setBounds(panelWidth / (gridSize) * j,
                         (panelHeight) / (gridSize) * i,
                         panelWidth / (gridSize),
-                        panelHeight / (gridSize));
+                        panelHeight / (gridSize)); //postavlja granice 
                 candyButtonGrid[i][j].setName(i + "-" + j);
                 candyButtonGrid[i][j].setVisible(true);
                 candyButtonGrid[i][j].setEnabled(true);
@@ -81,11 +104,16 @@ class Panel extends JPanel implements ActionListener{
                 add(candyButtonGrid[i][j]);
             }
         }
-        repaint();
+        repaint(); //nacrtaj
     }
     
     private void generateCandies()
     {
+        for(int i = 0; i < gridSize; i++)
+            for(int j = 0; j < gridSize; j++)
+            {
+                candyButtonGrid[i][j].setVisible(true);
+            }
         for(int i = 0; i < gridSize; i++)
             for(int j = 0; j < gridSize; j++)
             {
@@ -95,7 +123,7 @@ class Panel extends JPanel implements ActionListener{
     }
     private void normalize()
     {
-                boolean candiesReordered;
+        boolean candiesReordered;
         do
         {
             candiesReordered = false;
@@ -143,6 +171,8 @@ class Panel extends JPanel implements ActionListener{
             
         sameInColumn.clear();
         sameInRow.clear();
+        sameInColumn.add(y);
+        sameInRow.add(x);
             for(int j = y; j < gridSize - 1; j++)
                 if(candyGrid[x][j].getCandyType() == candyGrid[x][j+1].getCandyType())
                     sameInColumn.add(j+1);
@@ -163,13 +193,13 @@ class Panel extends JPanel implements ActionListener{
                     sameInRow.add(j+1);
                 else
                     break;
-            if(sameInRow.size() < 2 && sameInColumn.size() < 2)
+            if(sameInRow.size() < 3 && sameInColumn.size() < 3  )
             {
                 return false;
             }
             else
             {
-                if(sameInColumn.size() >= 2)
+                if(sameInColumn.size() >= 3)
                 {
                     int maxColumn, minColumn;
                     maxColumn = minColumn = sameInColumn.get(0);
@@ -186,7 +216,7 @@ class Panel extends JPanel implements ActionListener{
                         points++;
                     }
                 }
-                if(sameInRow.size() >= 2)
+                if(sameInRow.size() >= 3)
                 {
                     int maxColumn, minColumn;
                     maxColumn = minColumn = sameInRow.get(0);
@@ -227,6 +257,8 @@ class Panel extends JPanel implements ActionListener{
                 candyButtonGrid[i][j].setEnabled(true);
         fistEnter = true;
         System.out.println(points);
+        if(points > 20)
+            gameOver();
     }
     private int[] inititor = new int[2];
     @Override

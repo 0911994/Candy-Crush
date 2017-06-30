@@ -55,7 +55,7 @@ class Frame extends JFrame{
                         "Question?", javax.swing.JOptionPane.YES_NO_OPTION, 
                                             javax.swing.JOptionPane.WARNING_MESSAGE);
                 if(again == javax.swing.JOptionPane.YES_OPTION) 
-                    panel.startGane();
+                    panel.startGame();
             }
         });
         exit.addActionListener(new ActionListener() {
@@ -73,7 +73,7 @@ class Frame extends JFrame{
         highScore.addMouseListener(new MouseAdapter() {
               @Override
             public void mouseClicked(MouseEvent e) {
-   
+                   new HighScore(panel);
             }
         });
         
