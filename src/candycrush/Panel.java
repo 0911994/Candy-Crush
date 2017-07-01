@@ -22,11 +22,11 @@ class Panel extends JPanel implements ActionListener{
     private JButton[][] candyButtonGrid;
     
     private Random random = new Random();
-    private boolean fistEnter = true; //kad se pocne igra, prvi prikaz
+    private boolean fistEnter = true; 
     private int points; 
     
     private boolean imagesLoaded;
-    private ImageIcon[] icons; //da bi se crtalo na dugmadima mora imati ovaj tip
+    private ImageIcon[] icons; 
 
     public static int getPanelHeight() {
         return panelHeight;
@@ -45,8 +45,8 @@ class Panel extends JPanel implements ActionListener{
         setVisible(true);
         
         imagesLoaded = Candy.loadImages();
-        icons = new ImageIcon[numberOfCandyTypes]; //ikonice su niz dugmadi
-        initComponents(); //ucitaj komponente
+        icons = new ImageIcon[numberOfCandyTypes]; 
+        initComponents(); 
         startGame();
     }
     public void startGame()
@@ -82,10 +82,10 @@ class Panel extends JPanel implements ActionListener{
             {
                 Image newimg = Candy.candyImages[i].getScaledInstance(panelWidth / (gridSize),
                         panelHeight / (gridSize),  java.awt.Image.SCALE_SMOOTH ) ;
-                icons[i] = new ImageIcon( newimg ); //ikonica postaje nova smanjenja slika
+                icons[i] = new ImageIcon( newimg );
             }
         points = 0;
-        candyGrid = new Candy[gridSize][gridSize]; //pravi matrice
+        candyGrid = new Candy[gridSize][gridSize]; 
         candyButtonGrid = new JButton[gridSize][gridSize];
         for(int i = 0; i < gridSize; i++)
         {
@@ -95,7 +95,7 @@ class Panel extends JPanel implements ActionListener{
                 candyButtonGrid[i][j].setBounds(panelWidth / (gridSize) * j,
                         (panelHeight) / (gridSize) * i,
                         panelWidth / (gridSize),
-                        panelHeight / (gridSize)); //postavlja granice 
+                        panelHeight / (gridSize)); 
                 candyButtonGrid[i][j].setName(i + "-" + j);
                 candyButtonGrid[i][j].setVisible(true);
                 candyButtonGrid[i][j].setEnabled(true);
@@ -104,7 +104,7 @@ class Panel extends JPanel implements ActionListener{
                 add(candyButtonGrid[i][j]);
             }
         }
-        repaint(); //nacrtaj
+        repaint(); 
     }
     
     private void generateCandies()
@@ -218,14 +218,14 @@ class Panel extends JPanel implements ActionListener{
                 }
                 if(sameInRow.size() >= 3)
                 {
-                    int maxColumn, minColumn;
-                    maxColumn = minColumn = sameInRow.get(0);
+                    int maxRow, minRow;
+                    maxRow = minRow = sameInRow.get(0);
                     for(int i = 1; i < sameInRow.size(); i++)
                     {
-                        if(maxColumn < sameInRow.get(i))
-                            maxColumn = sameInRow.get(i);
-                        if(minColumn > sameInRow.get(i))
-                            minColumn = sameInRow.get(i);
+                        if(maxRow < sameInRow.get(i))
+                            maxRow = sameInRow.get(i);
+                        if(minRow > sameInRow.get(i))
+                            minRow = sameInRow.get(i);
                     }
                         for(int i = sameInRow.get(0); i > 0; i--)
                         {    
@@ -257,15 +257,15 @@ class Panel extends JPanel implements ActionListener{
                 candyButtonGrid[i][j].setEnabled(true);
         fistEnter = true;
         System.out.println(points);
-        if(points > 20)
+        if(points > 40)
             gameOver();
     }
     private int[] inititor = new int[2];
     @Override
     public void actionPerformed(ActionEvent e) {
-        String[] indeses = ((JButton) e.getSource()).getName().split("-");
-        int xCoordinate = Integer.parseInt(indeses[0]);
-        int yCoordinate = Integer.parseInt(indeses[1]);
+        String[] indexes = ((JButton) e.getSource()).getName().split("-");
+        int xCoordinate = Integer.parseInt(indexes[0]);
+        int yCoordinate = Integer.parseInt(indexes[1]);
         if(fistEnter)
         {
             fistEnter = false;
